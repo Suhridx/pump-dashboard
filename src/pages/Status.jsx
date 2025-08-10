@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useWebSocket } from '../contexts/WebSocketContext';
 import ScrollLayout from '../Layout/ScrollLayout';
+import ScheduleStatusCard from '../components/ScheduleStatusCard';
+import ScheduleCard from '../components/ScheduleCard';
 
 // Helper function to format time from 645 -> "06:45"
 const formatTime = (time) => {
@@ -9,6 +11,16 @@ const formatTime = (time) => {
     const minutes = String(time % 100).padStart(2, '0');
     return `${hours}:${minutes}`;
 };
+
+function convertTime(totalMinutes) {
+  const hrs = Math.floor(totalMinutes / 60);
+  const mins = totalMinutes % 60;
+
+  const hrsText = hrs > 0 ? `${hrs}h` : "";
+  const minsText = mins > 0 ? `${mins}min` : "";
+
+  return `${hrsText} ${minsText}`.trim();
+}
 
 // Helper function to parse time from "06:45" -> 645
 const parseTime = (timeStr) => {
@@ -89,49 +101,14 @@ const ScheduleEditModal = ({ schedule, isOpen, onClose, onSave }) => {
 };
 
 // Component for the Summary Status Items
-const StatusItems = ({ scheduleState, timerState }) => {
-    const getCompletedSchedules = () => {
-        const completedMask = scheduleState.schedule_completed;
-        const totalSchedules = timerState.timer_arr.length;
-        const completed = [];
-        for (let i = 1; i <= totalSchedules; i++) {
-            if ((completedMask >> i) & 1) {
-                completed.push(i);
-            }
-        }
-        return completed.length > 0 ? completed.join(', ') : 'None';
-    };
-
-    const items = {
-        "Next Schedule": formatTime(scheduleState.next_schedule_time),
-        "Last Start": formatTime(scheduleState.last_start_time),
-        "Last End": formatTime(scheduleState.last_end_time),
-        "Last Mode": scheduleState.last_mode,
-        "Schedules Completed": getCompletedSchedules(),
-    };
-
-    return (
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {Object.entries(items).map(([label, value]) => (
-                <div key={label} className="p-4 bg-slate-100 rounded-lg">
-                    <p className="text-sm text-slate-500">{label}</p>
-                    <p className={`text-2xl font-bold ${label === 'Next Schedule' ? 'text-blue-600' : 'text-slate-800'} capitalize truncate`}>
-                        {value}
-                    </p>
-                </div>
-            ))}
-        </div>
-    );
-};
-
 
 // Component for the Timers Table
 const TimeTable = ({ timerState, scheduleState, onEdit }) => {
     const schedules = timerState.timer_arr.map((time, index) => ({
         id: index + 1,
         time: time,
-        duration: timerState.duration_arr[index],
-        isEnabled: timerState.timer_enable_arr[index],
+        duration: timerState?.duration_arr[index],
+        isEnabled: timerState?.timer_enable_arr[index],
     }));
 
     return (
@@ -141,10 +118,10 @@ const TimeTable = ({ timerState, scheduleState, onEdit }) => {
                     <tr>
                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Schedule #</th>
                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Start Time</th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">End TIme</th>
                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Duration (min)</th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Mode</th>
                         <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">Completed</th>
-                        <th scope="col" className="relative px-6 py-3"><span className="sr-only">Edit</span></th>
                     </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-slate-200">
@@ -161,7 +138,7 @@ const TimeTable = ({ timerState, scheduleState, onEdit }) => {
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                                    <div class="flex justify-center items-center">
+                                    <div className="flex justify-center items-center">
                                         {isCompleted && (
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
                                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -184,9 +161,16 @@ const TimeTable = ({ timerState, scheduleState, onEdit }) => {
 };
 
 export default function Status() {
-    const { timerState, scheduleState, sendMessage } = useWebSocket();
+    const { scheduleState, timerState, sendMessage } = useWebSocket();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedSchedule, setSelectedSchedule] = useState(null);
+
+    const schedules = timerState?.timer_arr.map((time, index) => ({
+        id: index + 1,
+        time: time,
+        duration: timerState?.duration_arr[index],
+        isEnabled: timerState?.timer_enable_arr[index],
+    }));
 
     const handleEditClick = (schedule) => {
         setSelectedSchedule(schedule);
@@ -219,10 +203,27 @@ export default function Status() {
             <h1 className="text-4xl font-bold text-slate-800 mb-2">Device Status & Schedule</h1>
             <p className="text-lg text-slate-500 mb-8">View and manage the device's schedule.</p>
 
-            <h2 className="text-2xl font-bold text-slate-700 mt-8 mb-2">Schedule Summary</h2>
-            <StatusItems scheduleState={scheduleState} timerState={timerState} />
+            <div>
+                <h2 className="text-2xl font-bold text-slate-700 mt-8 mb-4">Configured Schedules</h2>
 
-            <h2 className="text-2xl font-bold text-slate-700 mt-8 mb-2">Configured Timers</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {schedules.length > 0 &&
+                        schedules.map((item) => (
+                            <ScheduleCard
+                                key={item.id}
+                                name={`Schedule ${item.id}`}
+                                time= {formatTime(item.time)}
+                                ampm={item.time > 1200 ? "PM" : "AM"}
+                                duration={convertTime(item.duration)}
+                                active={item.isEnabled}
+                                onEdit={handleEditClick}
+                            />
+                        ))}
+                </div>
+            </div>
+
+
+            <h2 className="text-2xl font-bold text-slate-700 mt-8 mb-2">Schedule Summary</h2>
             <TimeTable timerState={timerState} scheduleState={scheduleState} onEdit={handleEditClick} />
 
             <ScheduleEditModal

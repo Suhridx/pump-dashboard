@@ -1,6 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { useWebSocket } from '../contexts/WebSocketContext';
 
+
+const PumpControlCardSkeleton = () => {
+    return (
+        <div className="p-6 bg-white rounded-3xl shadow-lg flex flex-col justify-between font-sans w-full mx-auto border border-slate-200 animate-pulse">
+            {/* Header Skeleton */}
+            <div className="flex justify-between w-full items-center">
+                <div className="h-5 w-16 bg-slate-200 rounded-md"></div>
+                <div className="flex items-center gap-3">
+                    <div className="h-6 w-6 bg-slate-200 rounded-md"></div>
+                    <div className="w-3 h-3 bg-slate-200 rounded-full"></div>
+                </div>
+            </div>
+
+            {/* Main Content Skeleton */}
+            <div className="flex flex-wrap flex-1 items-center justify-center gap-6 my-8 min-h-[8rem]">
+                <div className="w-32 h-32 bg-slate-200 rounded-full flex-shrink-0"></div>
+            </div>
+
+            {/* Footer Skeleton */}
+            <div className="h-12 text-left">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-slate-200"></div>
+                    <div>
+                        <div className="h-5 w-24 bg-slate-200 rounded-md mb-2"></div>
+                        <div className="h-3 w-32 bg-slate-200 rounded-md"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // A dedicated component to display the mode with its corresponding icon
 const ModeDisplay = ({ mode, isPumpOn }) => {
     // If the pump is off, display the 'OFF' status
@@ -42,7 +74,7 @@ const ModeDisplay = ({ mode, isPumpOn }) => {
         },
         POWER: {
             icon: (
-                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
             ),
@@ -119,16 +151,20 @@ const PumpControlCard = () => {
             seconds: String(seconds).padStart(2, '0'),
         };
     };
-    
+
     // The timer display now uses the local state for a smooth countdown
     const { hours, minutes, seconds } = formatTime(localTimeRemaining);
 
+    if (!pumpState) {
+        return <PumpControlCardSkeleton />
+    }
+
     return (
         // Main card with a light, modern theme. Removed min-width to allow grid control.
-        <div className="p-6 bg-white rounded-3xl shadow-lg flex flex-col justify-between font-sans w-full mx-auto border border-slate-200">
+        <div className="p-6 bg-white rounded-3xl shadow-lg flex flex-col justify-between font-sans w-full mx-auto border border-slate-200 max-w-[800px]">
             {/* Header: Title and Status Indicator */}
             <div className="flex justify-between w-full items-center">
-                <h3 className="font-bold text-lg text-slate-500 tracking-wider">PUMP</h3>
+                <h3 className="font-bold text-lg text-slate-600 tracking-wider">PUMP</h3>
                 <div className="flex items-center gap-3">
                     {/* User's original settings icon */}
                     <img src="./settings.png" alt="settings" className="h-6 w-6 cursor-pointer opacity-70 hover:opacity-100 transition" />
@@ -140,20 +176,20 @@ const PumpControlCard = () => {
             {/* Main Content: Button and Timer. Added flex-wrap for responsiveness. */}
             <div className="flex flex-wrap flex-1 items-center justify-center gap-6 my-8 min-h-[8rem]">
                 {/* The main power button */}
-                <button 
+                <button
                     onClick={handleToggle}
                     className="relative w-32 h-32 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 ease-in-out transform active:scale-95 focus:outline-none"
                 >
                     {/* The animated glow effect, rendered only when the pump is on */}
                     {isPumpOn && (
-                        <span className="absolute h-full w-full rounded-full bg-sky-400 animate-ping opacity-70"></span>
+                        <span className="absolute h-full w-full rounded-full bg-rose-500 animate-ping opacity-70"></span>
                     )}
 
                     {/* The visible button surface */}
                     <div className={`
                         relative w-full h-full rounded-full flex items-center justify-center transition-all duration-300
                         ${isPumpOn
-                            ? 'bg-sky-500 text-white shadow-lg shadow-sky-500/40'
+                            ? 'bg-rose-500 text-white shadow-lg shadow-sky-500/40'
                             : 'bg-slate-200 text-slate-500 shadow-md border-4 border-slate-300'
                         }
                     `}>
@@ -174,7 +210,7 @@ const PumpControlCard = () => {
                     </div>
                 )}
             </div>
-            
+
             {/* Footer: Status Mode and Description */}
             <div className="h-12 text-left">
                 <ModeDisplay mode={pumpState?.mode} isPumpOn={isPumpOn} />

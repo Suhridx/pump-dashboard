@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useWebSocket } from '../contexts/WebSocketContext';
 import PumpControlCard from '../components/PumpControlCard';
-import LevelIndicatorCard from '../components/LevelIndicatorCard'
+import WaterLevelCard from '../components/WaterLevelCard'
 import ScrollLayout from '../Layout/ScrollLayout';
+import ScheduleStatusCard from '../components/ScheduleStatusCard';
+import Chart from '../components/Chart';
 
 // Component for the Pump Power Switch
 
@@ -11,17 +13,17 @@ import ScrollLayout from '../Layout/ScrollLayout';
 
 
 export default function Dashboard() {
-  const { routineState, isConnected } = useWebSocket();
+  const { routineState, scheduleState, timerState, isConnected } = useWebSocket();
 
   // Function to format the time from the server
   const formatSystemTime = () => {
-      if (routineState?.timeNow) {
-          const time = routineState.timeNow;
-          const hours = String(Math.floor(time / 100)).padStart(2, '0');
-          const minutes = String(time % 100).padStart(2, '0');
-          return `${hours}:${minutes}`;
-      }
-      return '--:--';
+    if (routineState?.timeNow) {
+      const time = routineState.timeNow;
+      const hours = String(Math.floor(time / 100)).padStart(2, '0');
+      const minutes = String(time % 100).padStart(2, '0');
+      return `${hours}:${minutes}`;
+    }
+    return '--:--';
   };
 
   return (
@@ -41,10 +43,17 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+<div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1600px]">
         <PumpControlCard />
-        <LevelIndicatorCard />
+        <WaterLevelCard/>
+        <ScheduleStatusCard />
       </div>
+      <div className='mt-10'>
+            <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">System Water Levels & Pump Status</h2>
+
+      <Chart/>
+      </div>
+
     </ScrollLayout>
   );
 }

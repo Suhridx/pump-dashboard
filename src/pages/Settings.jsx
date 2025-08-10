@@ -3,6 +3,65 @@ import { useWebSocket } from '../contexts/WebSocketContext';
 import { LockOpenIcon, LockClosedIcon } from '../icons/Svg';
 import ScrollLayout from '../Layout/ScrollLayout'
 
+
+const ToggleSwitchSkeleton = () => (
+  <div className="flex items-center justify-between p-4">
+    <div className="mr-4 flex-1">
+      <div className="h-5 w-1/3 bg-slate-200 rounded-md mb-2"></div>
+      <div className="h-3 w-3/4 bg-slate-200 rounded-md"></div>
+    </div>
+    <div className="h-6 w-11 bg-slate-200 rounded-full"></div>
+  </div>
+);
+
+const SliderInputSkeleton = () => (
+  <div className="p-4">
+    <div className="flex items-center justify-between">
+      <div>
+        <div className="h-5 w-32 bg-slate-200 rounded-md mb-2"></div>
+        <div className="h-3 w-48 bg-slate-200 rounded-md"></div>
+      </div>
+      <div className="h-6 w-12 bg-slate-200 rounded-md"></div>
+    </div>
+    <div className="h-2 w-full bg-slate-200 rounded-lg mt-3"></div>
+  </div>
+);
+
+const SelectInputSkeleton = () => (
+  <div className="flex items-center justify-between p-5">
+    <div className="mr-4">
+      <div className="h-5 w-24 bg-slate-200 rounded-md mb-2"></div>
+      <div className="h-3 w-40 bg-slate-200 rounded-md"></div>
+    </div>
+    <div className="h-10 w-32 bg-slate-200 rounded-lg"></div>
+  </div>
+);
+
+const SettingsSkeleton = () => (
+  <div className="max-w-4xl w-full p-4 sm:p-8 animate-pulse">
+    <div className="h-10 w-1/3 bg-slate-200 rounded-md mb-2"></div>
+    <div className="h-5 w-1/2 bg-slate-200 rounded-md mb-8"></div>
+    
+    <div className="h-8 w-1/4 bg-slate-200 rounded-md mt-8 mb-2"></div>
+    <div className="rounded-lg border border-slate-200 bg-white">
+      <div className="divide-y divide-slate-200">
+        <ToggleSwitchSkeleton />
+        <ToggleSwitchSkeleton />
+        <ToggleSwitchSkeleton />
+      </div>
+    </div>
+
+    <div className="h-8 w-1/4 bg-slate-200 rounded-md mt-8 mb-2"></div>
+    <div className="rounded-lg border border-slate-200 bg-white">
+      <div className="divide-y divide-slate-200">
+        <SliderInputSkeleton />
+        <SliderInputSkeleton />
+        <SelectInputSkeleton />
+      </div>
+    </div>
+  </div>
+);
+
 const ToggleSwitch = ({ label, description, isChecked, onChange }) => (
   <div 
     onClick={() => onChange(!isChecked)}
@@ -133,12 +192,12 @@ export default function Settings() {
   };
   
   if (!localSettings) {
-    return <div>Loading settings...</div>;
+    return <SettingsSkeleton/>;
   }
 
   return (
     
-    <ScrollLayout maxHeight="100%" className="max-w-4xl p-10">
+    <ScrollLayout maxHeight="100%" className="max-w-6xl p-10">
         <h1 className="text-4xl font-bold text-slate-800 mb-2">Settings</h1>
         <p className="text-lg text-slate-500 mb-8">Configure the device parameters.</p>
         
