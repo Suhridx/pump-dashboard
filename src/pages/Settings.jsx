@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useWebSocket } from '../contexts/WebSocketContext';
+import { useMqtt } from '../contexts/MqttContext';
 import { LockOpenIcon, LockClosedIcon } from '../icons/Svg';
 import ScrollLayout from '../Layout/ScrollLayout'
 
@@ -163,7 +163,7 @@ const SelectInput = ({ label, description, value, onChange, options, isDisabled 
 
 
 export default function Settings() {
-  const { settingsState, sendMessage } = useWebSocket();
+  const { settingsState, publishMessage } = useMqtt();
   const [localSettings, setLocalSettings] = useState(null);
   const [isThresholdLocked, setIsThresholdLocked] = useState(true);
   const timerOptions = [15, 30, 45, 60, 90, 120];
@@ -188,7 +188,7 @@ export default function Settings() {
         console.error("Unsupported setting type:", typeof value);
         return;
     }
-    sendMessage(JSON.stringify(payload));
+    publishMessage(JSON.stringify(payload));
   };
   
   if (!localSettings) {

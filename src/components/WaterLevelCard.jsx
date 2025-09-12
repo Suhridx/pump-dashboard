@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useWebSocket } from '../contexts/WebSocketContext';
+import { useMqtt } from '../contexts/MqttContext';
 import { LevelIcon } from '../icons/Svg';
 
 // --- Skeleton Component (Unchanged) ---
@@ -108,7 +108,7 @@ const Tooltip = ({ children, content }) => {
 
 // --- ✅ UPDATED LevelStatusCard Component ---
 const LevelStatusCard = () => {
-  const { wirelessState } = useWebSocket();
+  const { wirelessState } = useMqtt();
   // Destructure all needed values, providing defaults
   const tankLevel = wirelessState?.tank_level ?? 0;
   const resLevel = wirelessState?.res_level ?? 0;

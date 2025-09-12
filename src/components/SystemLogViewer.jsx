@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import LogViewer from '../components/LogViewer';
-import { useWebSocket } from '../contexts/WebSocketContext';
+import { useMqtt } from '../contexts/MqttContext';
 import Spinner from '../utilities/Spinner'
 
 // 1. A simple spinner component using Tailwind CSS
 
 
 const SystemLogViewer = () => {
-  const { sendMessage, isConnected,logStatus, logData, clearLogs } = useWebSocket();
+  const { publishMessage, isConnected,logStatus, logData, clearLogs } = useMqtt();
   // 2. Local state to track if logs are being streamed
   const [isLoading, setIsLoading] = useState(false);
   useEffect(()=>{
@@ -31,8 +31,8 @@ const SystemLogViewer = () => {
       console.log('Requesting log file...');
       // clearLogs();
       setIsLoading(true); // 4. Start the spinner
-      sendMessage(JSON.stringify({ key: "sendlog" }));
-      // sendMessage("sendlog");
+      publishMessage(JSON.stringify({ key: "sendlog" }));
+      // publishMessage("sendlog");
     } else {
       console.log('WebSocket is not connected.');
     }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useWebSocket } from '../contexts/WebSocketContext';
+import { useMqtt } from '../contexts/MqttContext';
 import PumpControlCard from '../components/PumpControlCard';
 import WaterLevelCard from '../components/WaterLevelCard'
 import ScrollLayout from '../Layout/ScrollLayout';
@@ -13,7 +13,7 @@ import Chart from '../components/Chart';
 
 
 export default function Dashboard() {
-  const { routineState, scheduleState, timerState, isConnected } = useWebSocket();
+  const { routineState, scheduleState, timerState, isConnected } = useMqtt();
 
   // Function to format the time from the server
   const formatSystemTime = () => {

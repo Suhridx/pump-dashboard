@@ -1,5 +1,5 @@
 import React from 'react';
-import { useWebSocket } from '../contexts/WebSocketContext';
+import { useMqtt } from '../contexts/MqttContext';
 
 import ScrollLayout from '../Layout/ScrollLayout';
 import { UpArrowIcon } from '../icons/Svg'; // Assuming the icon is in this path
@@ -27,7 +27,7 @@ const UpdateButton = ({ id, label, deviceName, description, handleUpdate }) => (
 
 
 export default function Updates() {
-    const { sendMessage } = useWebSocket();
+    const { publishMessage } = useMqtt();
 
     function handleUpdate(id) {
         console.log(id);

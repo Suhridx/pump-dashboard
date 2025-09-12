@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useWebSocket } from '../contexts/WebSocketContext';
+import { useMqtt } from '../contexts/MqttContext';
 
 
 const PumpControlCardSkeleton = () => {
@@ -103,7 +103,7 @@ const ModeDisplay = ({ mode, isPumpOn }) => {
 
 const PumpControlCard = () => {
     // Using the original WebSocket context hook from the user's project
-    const { pumpState, routineState, sendMessage } = useWebSocket();
+    const { pumpState, routineState, publishMessage } = useMqtt();
 
     const isPumpOn = pumpState?.pump_state === true;
     // Get the time from the server, prioritizing routineState
@@ -136,7 +136,7 @@ const PumpControlCard = () => {
 
 
     const handleToggle = () => {
-        sendMessage(JSON.stringify({ key: "pump", name: "pump_state" }));
+        publishMessage(JSON.stringify({ key: "pump", name: "pump_state" }));
     };
 
     // Helper function to format seconds into HH:MM:SS for the display

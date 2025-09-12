@@ -5,7 +5,7 @@ import Logs from './pages/Logs';
 import Settings from './pages/Settings';
 import Status from './pages/Status';
 import Updates from './pages/Updates';
-import { WebSocketProvider } from './contexts/WebSocketContext';
+import { MqttProvider } from './contexts/MqttContext';
 
 import { useState } from 'react';
 
@@ -13,7 +13,7 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <WebSocketProvider>
+    <MqttProvider>
       <div className="h-screen w-full flex flex-col lg:grid lg:grid-cols-[280px_1fr]">
         {/* Mobile Sidebar (Drawer Style) */}
         {sidebarOpen && (
@@ -61,7 +61,7 @@ function App() {
           </main>
         </div>
       </div>
-    </WebSocketProvider>
+    </MqttProvider>
   );
 }
 

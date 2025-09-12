@@ -1,5 +1,5 @@
 import React from 'react';
-import { useWebSocket } from '../contexts/WebSocketContext';
+import { useMqtt } from '../contexts/MqttContext';
 
 const ScheduleStatusCardSkeleton = () => {
     const StatItemSkeleton = () => (
@@ -39,7 +39,7 @@ const ScheduleStatusCardSkeleton = () => {
 
 const ScheduleStatusCard = () => {
 
-    const { timerState, scheduleState } = useWebSocket();
+    const { timerState, scheduleState } = useMqtt();
 
     // Configuration for different modes, including their icons and descriptions.
     const modeConfig = {

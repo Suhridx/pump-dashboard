@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useWebSocket } from '../contexts/WebSocketContext';
+import { useMqtt } from '../contexts/MqttContext';
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
@@ -275,7 +275,7 @@ const WaterLevelChart = ({ data }) => {
 // --- App Component ---
 // This component simulates fetching data and handles the loading state.
 export default function Chart() {
-  const { sendMessage, isConnected, levelData, levelStatus } = useWebSocket();
+  const { publishMessage, isConnected, levelData, levelStatus } = useMqtt();
   const [isLoading, setIsLoading] = useState(true);
 
   // console.log("data from server: \n", levelData);
@@ -295,7 +295,7 @@ export default function Chart() {
     // Simulate an API call to fetch data
     if (isConnected) {
       setTimeout(() => {
-        sendMessage(JSON.stringify({ key: "sendLevelLog" }));
+        publishMessage(JSON.stringify({ key: "sendLevelLog" }));
       }, 500);
       
     }

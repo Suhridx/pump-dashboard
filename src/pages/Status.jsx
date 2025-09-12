@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useWebSocket } from '../contexts/WebSocketContext';
+import { useMqtt } from '../contexts/MqttContext';
 import ScrollLayout from '../Layout/ScrollLayout';
 import ScheduleStatusCard from '../components/ScheduleStatusCard';
 import ScheduleCard from '../components/ScheduleCard';
@@ -161,7 +161,7 @@ const TimeTable = ({ timerState, scheduleState, onEdit }) => {
 };
 
 export default function Status() {
-    const { scheduleState, timerState, sendMessage } = useWebSocket();
+    const { scheduleState, timerState, publishMessage } = useMqtt();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedSchedule, setSelectedSchedule] = useState(null);
 
@@ -190,7 +190,7 @@ export default function Status() {
             duration: updatedSchedule.duration,
             enabled: updatedSchedule.isEnabled
         };
-        sendMessage(JSON.stringify(payload));
+        publishMessage(JSON.stringify(payload));
         console.log('Sending update:', payload);
     };
 

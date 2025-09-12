@@ -1,13 +1,13 @@
 import { NavLink } from 'react-router-dom';
-import { useWebSocket } from '../contexts/WebSocketContext';
+import { useMqtt } from '../contexts/MqttContext';
 // I've added UpdateIcon here, assuming it exists in your icons file.
 import { DashboardIcon, LogsIcon, SettingsIcon, StatusIcon, LogoutIcon, UpdateIcon } from '../icons/Svg';
 
 export default function Sidebar({ setSidebarOpen }) {
-  const { isConnected, sendMessage } = useWebSocket();
+  const { isConnected, publishMessage } = useMqtt();
 
   const handleUpdateClick = () => {
-    sendMessage(JSON.stringify({ key: 'update' }));
+    publishMessage(JSON.stringify({ key: 'update' }));
   };
 
   const handleNavClick = () => {
