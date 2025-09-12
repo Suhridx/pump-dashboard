@@ -51,7 +51,7 @@ export default function Dashboard() {
       <div className='mt-10'>
             <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">System Water Levels & Pump Status</h2>
 
-      <Chart/>
+      {/* <Chart/> */}
       </div>
 
     </ScrollLayout>

@@ -58,12 +58,17 @@ export const MqttProvider = ({ children }) => {
         mqttClient.on('connect', () => {
             console.log('MQTT Client Connected');
             setIsConnected(true);
+            mqttClient.publish('user/request', JSON.stringify({"key" : "request"}), (err) => {
+            if (err) {
+                console.error('Publish Error:', err);
+            }
+        });
 
             // Define topics to subscribe to
             const topicsToSubscribe = [
                 'device/status',   // For general status like pump, wireless, settings
-                'device/logs',     // For log data streams
-                'device/levels',   // For water level data streams
+                // 'device/logs',     // For log data streams
+                // 'device/levels',   // For water level data streams
             ];
             
             mqttClient.subscribe(topicsToSubscribe, (err) => {
@@ -73,6 +78,7 @@ export const MqttProvider = ({ children }) => {
                     console.error('Subscription error:', err);
                 }
             });
+            
         });
 
         mqttClient.on('message', (topic, payload) => {

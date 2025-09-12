@@ -34,7 +34,7 @@ export default function Updates() {
         
         console.log(JSON.stringify({ key: id }));
         
-        sendMessage(JSON.stringify({ key: id }));
+        publishMessage(JSON.stringify({ key: id }));
     }
 
     return (
