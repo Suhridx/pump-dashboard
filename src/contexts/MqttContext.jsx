@@ -66,7 +66,7 @@ export const MqttProvider = ({ children }) => {
 
             // Define topics to subscribe to
             const topicsToSubscribe = [
-                'status',   // For general status like pump, wireless, settings
+                'status'   // For general status like pump, wireless, settings
                 // 'device/logs',     // For log data streams
                 // 'device/levels',   // For water level data streams
             ];
@@ -108,6 +108,8 @@ export const MqttProvider = ({ children }) => {
                         setLevelStatus("end");
                     }
                 } else if ("level_data" in data) {
+                    console.log(data.level_data.trim());
+                    
                     const parsed = JSON.parse(data.level_data.trim());
                     setLevelData(prev => [...prev, parsed]);
                 } else {
