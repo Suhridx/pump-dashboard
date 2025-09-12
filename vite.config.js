@@ -9,4 +9,8 @@ export default defineConfig({
     react(),
     tailwindcss(), // <-- Add the plugin
   ],
+  build: {
+    outDir: 'dist',   // default build folder
+  },
+  base: './',
 })
