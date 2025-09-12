@@ -31,7 +31,7 @@ const SystemLogViewer = () => {
       console.log('Requesting log file...');
       // clearLogs();
       setIsLoading(true); // 4. Start the spinner
-      publishMessage(JSON.stringify({ key: "sendlog" }));
+      // publishMessage(JSON.stringify({ key: "sendlog" }));
       // publishMessage("sendlog");
     } else {
       console.log('WebSocket is not connected.');
