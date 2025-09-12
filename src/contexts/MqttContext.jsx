@@ -58,7 +58,7 @@ export const MqttProvider = ({ children }) => {
         mqttClient.on('connect', () => {
             console.log('MQTT Client Connected');
             setIsConnected(true);
-            mqttClient.publish('user/request', JSON.stringify({"key" : "request"}), (err) => {
+            mqttClient.publish('user', JSON.stringify({"key" : "request"}), (err) => {
             if (err) {
                 console.error('Publish Error:', err);
             }
@@ -66,7 +66,7 @@ export const MqttProvider = ({ children }) => {
 
             // Define topics to subscribe to
             const topicsToSubscribe = [
-                'device/status',   // For general status like pump, wireless, settings
+                'status',   // For general status like pump, wireless, settings
                 // 'device/logs',     // For log data streams
                 // 'device/levels',   // For water level data streams
             ];
@@ -144,7 +144,7 @@ export const MqttProvider = ({ children }) => {
     }, []);
 
     const publishMessage = (message) => {
-       let  topic='user/request'
+       let  topic='user'
         if (!client || !isConnected) {
             console.error('Cannot publish. MQTT client is not connected.');
             return;
