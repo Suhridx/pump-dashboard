@@ -8,18 +8,18 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyqsy4rBBU90WjDb8BwW
 // 1. Create a simple skeleton component for the LogViewer
 const LogViewerSkeleton = () => (
     <>
-    <div className="mb-4 rounded-lg animate-pulse h-2 max-h-[65vh]">
-        <div className="h-4 bg-gray-400 rounded w-3/4 mb-3"></div>
-    </div>
-    <div className="p-4 bg-slate-800 rounded-lg animate-pulse h-100 max-h-[65vh]">
-        <div className="h-4 bg-slate-700 rounded w-3/4 mb-3"></div>
-        <div className="h-4 bg-slate-700 rounded w-1/2 mb-3"></div>
-        <div className="h-4 bg-slate-700 rounded w-5/6 mb-3"></div>
-        <div className="h-4 bg-slate-700 rounded w-2/3 mb-3"></div>
-        <div className="h-4 bg-slate-700 rounded w-3/4"></div>
-    </div>
+        <div className="mb-4 rounded-lg animate-pulse h-2 max-h-[65vh]">
+            <div className="h-4 bg-gray-400 rounded w-3/4 mb-3"></div>
+        </div>
+        <div className="p-4 bg-slate-800 rounded-lg animate-pulse h-100 max-h-[65vh]">
+            <div className="h-4 bg-slate-700 rounded w-3/4 mb-3"></div>
+            <div className="h-4 bg-slate-700 rounded w-1/2 mb-3"></div>
+            <div className="h-4 bg-slate-700 rounded w-5/6 mb-3"></div>
+            <div className="h-4 bg-slate-700 rounded w-2/3 mb-3"></div>
+            <div className="h-4 bg-slate-700 rounded w-3/4"></div>
+        </div>
     </>
-    
+
 );
 
 
@@ -46,6 +46,8 @@ function CloudLogViewer() {
 
     // 3. Update the fetch function to manage the new loading state
     const fetchFileContent = (folderName, fileName) => {
+        // console.log(folderName , " " , fileName);
+        
         setIsFileLoading(true); // Start loading
         setLogText({}); // Clear previous logs immediately
 
@@ -76,20 +78,20 @@ function CloudLogViewer() {
         setLogText({});
     }
 
-      const handleDownload = () => {
-    if (!logText) return;
-    // Clean the end-of-stream signal from the logs before downloading
-    const cleanLogData = logText.text.replace("{'log_status': 'end'}", "").trim();
-    const blob = new Blob([cleanLogData], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `system_log_${new Date().toISOString()}.log`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
+    const handleDownload = () => {
+        if (!logText) return;
+        // Clean the end-of-stream signal from the logs before downloading
+        const cleanLogData = logText.text.replace("{'log_status': 'end'}", "").trim();
+        const blob = new Blob([cleanLogData], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `system_log_${new Date().toISOString()}.log`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
 
     return (
         <>
@@ -114,7 +116,7 @@ function CloudLogViewer() {
             </div>
 
             {/* 4. Conditionally render title, skeleton, and LogViewer */}
-            
+
             {/* Show title only when not loading and content is available */}
             {!isFileLoading && logText.name && <h2 className="text-2xl font-bold text-slate-700 mt-8 mb-1">{logText.name}</h2>}
 
@@ -127,7 +129,7 @@ function CloudLogViewer() {
             <div className="flex pt-6 gap-2">
                 {/* Show buttons only when not loading and content is available */}
                 {!isFileLoading && logText.text && (
-                     <>
+                    <>
                         <button
                             onClick={handleDownload}
                             className="bg-slate-200 text-slate-800 font-bold py-2 px-4 rounded-lg hover:bg-slate-300 transition-colors"

@@ -1,7 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useMqtt } from '../contexts/MqttContext';
+import FetchErrorCard from '../components/FetchErrorCard';
+
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
+
+
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyqsy4rBBU90WjDb8BwWzBYa1RcpQdVLcyCzbAE6KN8BYQEzmDzRE9Ef479I1z2nAWeRg/exec";
 
 // --- Mock Data ---
 // This data simulates the input you would receive from an API.
@@ -161,7 +166,7 @@ const WaterLevelChart = ({ data }) => {
     if (!ticks.includes(last)) {
       ticks.push(last);
     }
-    
+
     return ticks;
   }
 
@@ -172,100 +177,100 @@ const WaterLevelChart = ({ data }) => {
       <div className="overflow-x-auto">
         {/* This container creates a responsive aspect ratio with a minimum height. */}
         <div className="relative w-[600px] md:w-full" style={{ paddingTop: '35%', minHeight: '400px' }}>
-            {/* This div is positioned absolutely to fill the space created by the padding trick. */}
-            <div className="absolute top-0 left-0 w-full h-full">
-                <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart
-                        data={chartData}
-                        margin={{ top: 5, right: 30, left: 20, bottom: 20 }}
-                    >
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-                        <XAxis
-                            dataKey="timestamp"
-                            tickFormatter={formatXAxis}
-                            ticks={getEvenlySpacedTicks(chartData, 40)}
-                            stroke="#6b7280"
-                            padding={{ left: 20, right: 20 }}
-                            tick={{ dy: 10 }}
-                        />
-                        <YAxis
-                            label={{
-                                value: 'Water Level (%)',
-                                angle: -90,
-                                position: 'insideLeft',
-                                fill: '#374151',
-                                dy: 40
-                            }}
-                            stroke="#6b7280"
-                            domain={[0, 100]}
-                            ticks={[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
-                        />
-                        <Tooltip
-                            content={({ active, payload, label }) => {
-                                if (!active || !payload || !payload.length) return null;
-                                const data = payload[0].payload;
-                                return (
-                                    <div className="bg-white p-3 rounded-lg shadow-md border border-gray-300 opacity-75">
-                                        <p className="font-bold">{new Date(label).toLocaleString()}</p>
-                                        <p style={{ color: '#ff2056' }}>
-                                            Pump Status: {data.pump_state === true ? 'ON' : 'OFF'}
-                                        </p>
-                                        <p style={{ color: '#009966' }}>Reservoir Level: {data.res_level}%</p>
-                                        <p style={{ color: '#1E90FF' }}>Tank Level: {data.tank_level}%</p>
-                                    </div>
-                                );
-                            }}
-                        />
-                        <Legend
-                            verticalAlign="top"
-                            height={50}
-                            wrapperStyle={{ paddingBottom: '20px' }}
-                            payload={[
-                                { value: 'Tank Level', type: 'line', id: 'tank_level', color: '#1E90FF' },
-                                { value: 'Reservoir Level', type: 'line', id: 'res_level', color: '#009966' },
-                                { value: 'Pump ON', type: 'rect', id: 'pump_on', color: 'rgba(255, 32, 86, 0.4)' },
-                            ]}
-                        />
+          {/* This div is positioned absolutely to fill the space created by the padding trick. */}
+          <div className="absolute top-0 left-0 w-full h-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart
+                data={chartData}
+                margin={{ top: 5, right: 30, left: 20, bottom: 20 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                <XAxis
+                  dataKey="timestamp"
+                  tickFormatter={formatXAxis}
+                  ticks={getEvenlySpacedTicks(chartData, 40)}
+                  stroke="#6b7280"
+                  padding={{ left: 20, right: 20 }}
+                  tick={{ dy: 10 }}
+                />
+                <YAxis
+                  label={{
+                    value: 'Water Level (%)',
+                    angle: -90,
+                    position: 'insideLeft',
+                    fill: '#374151',
+                    dy: 40
+                  }}
+                  stroke="#6b7280"
+                  domain={[0, 100]}
+                  ticks={[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
+                />
+                <Tooltip
+                  content={({ active, payload, label }) => {
+                    if (!active || !payload || !payload.length) return null;
+                    const data = payload[0].payload;
+                    return (
+                      <div className="bg-white p-3 rounded-lg shadow-md border border-gray-300 opacity-75">
+                        <p className="font-bold">{new Date(label).toLocaleString()}</p>
+                        <p style={{ color: '#ff2056' }}>
+                          Pump Status: {data.pump_state === true ? 'ON' : 'OFF'}
+                        </p>
+                        <p style={{ color: '#009966' }}>Reservoir Level: {data.res_level}%</p>
+                        <p style={{ color: '#1E90FF' }}>Tank Level: {data.tank_level}%</p>
+                      </div>
+                    );
+                  }}
+                />
+                <Legend
+                  verticalAlign="top"
+                  height={50}
+                  wrapperStyle={{ paddingBottom: '20px' }}
+                  payload={[
+                    { value: 'Tank Level', type: 'line', id: 'tank_level', color: '#1E90FF' },
+                    { value: 'Reservoir Level', type: 'line', id: 'res_level', color: '#009966' },
+                    { value: 'Pump ON', type: 'rect', id: 'pump_on', color: 'rgba(255, 32, 86, 0.4)' },
+                  ]}
+                />
 
-                        {/* Pump ON Area - New color */}
-                        <defs>
-                            <linearGradient id="pumpColor" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#ff2056" stopOpacity={0.4} />
-                                <stop offset="95%" stopColor="#ff2056" stopOpacity={0.1} />
-                            </linearGradient>
-                        </defs>
-                        <Area
-                            type="stepAfter"
-                            dataKey="pump_on"
-                            stroke="rgba(255, 32, 86, 0.5)"
-                            fill="url(#pumpColor)"
-                            strokeWidth={1}
-                            name="Pump Status"
-                            dot={false}
-                        />
+                {/* Pump ON Area - New color */}
+                <defs>
+                  <linearGradient id="pumpColor" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#ff2056" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#ff2056" stopOpacity={0.1} />
+                  </linearGradient>
+                </defs>
+                <Area
+                  type="stepAfter"
+                  dataKey="pump_on"
+                  stroke="rgba(255, 32, 86, 0.5)"
+                  fill="url(#pumpColor)"
+                  strokeWidth={1}
+                  name="Pump Status"
+                  dot={false}
+                />
 
-                        {/* Lines with thicker strokes and dots */}
-                        <Line
-                            type="monotone"
-                            dataKey="tank_level"
-                            name="Tank Level"
-                            stroke="#1E90FF"
-                            strokeWidth={3}
-                            dot={{ r: 3, fill: '#1E90FF' }}
-                            activeDot={{ r: 7 }}
-                        />
-                        <Line
-                            type="monotone"
-                            dataKey="res_level"
-                            name="Reservoir Level"
-                            stroke="#009966"
-                            strokeWidth={3}
-                            dot={{ r: 3, fill: '#009966' }}
-                            activeDot={{ r: 7 }}
-                        />
-                    </AreaChart>
-                </ResponsiveContainer>
-            </div>
+                {/* Lines with thicker strokes and dots */}
+                <Line
+                  type="monotone"
+                  dataKey="tank_level"
+                  name="Tank Level"
+                  stroke="#1E90FF"
+                  strokeWidth={3}
+                  dot={{ r: 3, fill: '#1E90FF' }}
+                  activeDot={{ r: 7 }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="res_level"
+                  name="Reservoir Level"
+                  stroke="#009966"
+                  strokeWidth={3}
+                  dot={{ r: 3, fill: '#009966' }}
+                  activeDot={{ r: 7 }}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
     </div>
@@ -275,38 +280,74 @@ const WaterLevelChart = ({ data }) => {
 // --- App Component ---
 // This component simulates fetching data and handles the loading state.
 export default function Chart() {
-  const { publishMessage, isConnected, levelData, levelStatus } = useMqtt();
-  const [isLoading, setIsLoading] = useState(true);
+  // const { publishMessage, isConnected, levelData, levelStatus } = useMqtt();
+  const [isLoading, setIsLoading] = useState(-1);
+  const [levelData, setLevelData] = useState({});
 
   // console.log("data from server: \n", levelData);
 
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    if (levelStatus === 'end')
-      setIsLoading(false)
+  //   if (levelStatus === 'end')
+  //     setIsLoading(false)
 
-  }, [levelStatus])
+  // }, [levelStatus])
 
+  const fetchFileContent = (folderName, fileName) => {
+    setIsLoading(1); // Start loading
+    setLevelData({}); // Clear previous logs immediately
 
-  const lastSentRef = useRef(null);
+    const url = `${SCRIPT_URL}?key=${encodeURIComponent(folderName)}&filename=${encodeURIComponent(fileName)}`;
+
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        console.log(data);
+        if (data.text) {
+          setLevelData(data.text.trim().split("\n").map(line => JSON.parse(line)));
+          setIsLoading(0)
+        } else if (data.error) {
+          console.error("Server error:", data.error);
+          setLevelData({ text: `Error: ${data.error}`, name: "Error" }); // Show error in viewer
+          setIsLoading(-1)
+        }
+      })
+      .catch(err => {
+        console.error("Fetch error:", err);
+        setIsLoading(-1)
+      })
+      // .finally(() => {
+      //   setIsLoading(0); // Stop loading, regardless of outcome
+      // });
+  };
 
   useEffect(() => {
     // Simulate an API call to fetch data
-    if (isConnected) {
-      setTimeout(() => {
-        publishMessage(JSON.stringify({ key: "sendLevelLog" }));
-      }, 500);
-      
-    }
+    const now = new Date();
 
-  }, [isConnected]); // The empty dependency array ensures this effect runs only once
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+
+    const folderName = `${year}_${month}`
+    // console.log(folderName);
+
+    const filename = `chart_${year}_${month}_${day}.txt`;
+
+    console.log(folderName, filename);
+
+    fetchFileContent(folderName, filename);
+
+  }, []); // The empty dependency array ensures this effect runs only once
 
 
   return (
 
     <div>
-      {isLoading ? <ChartSkeleton /> : <WaterLevelChart data={levelData} />}
+      {isLoading === 1 && <ChartSkeleton />}
+      {isLoading === 0 && <WaterLevelChart data={levelData} />}
+      {isLoading === -1 && <FetchErrorCard errorMessage={levelData.text} onRetry={fetchFileContent} />}
     </div>
 
   );
