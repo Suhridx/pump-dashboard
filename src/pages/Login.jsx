@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -18,8 +18,12 @@ export default function LoginPage() {
     }
   };
 
-  if(isAuthenticated)
+  useEffect(()=>{
+if(isAuthenticated)
     navigate('/')
+  },[])
+
+  
 
   return (
     <div>
