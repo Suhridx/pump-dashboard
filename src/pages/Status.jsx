@@ -3,6 +3,7 @@ import { useMqtt } from '../contexts/MqttContext';
 import ScrollLayout from '../Layout/ScrollLayout';
 import ScheduleStatusCard from '../components/ScheduleStatusCard';
 import ScheduleCard from '../components/ScheduleCard';
+import StatusSkeleton from '../Skeletons/StatusSkeleton'
 
 // Helper function to format time from 645 -> "06:45"
 const formatTime = (time) => {
@@ -195,7 +196,7 @@ export default function Status() {
     };
 
     if (!timerState || !scheduleState) {
-        return <div>Loading status...</div>;
+        return <StatusSkeleton/>;
     }
 
     return (

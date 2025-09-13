@@ -2,9 +2,11 @@ import { NavLink } from 'react-router-dom';
 import { useMqtt } from '../contexts/MqttContext';
 // I've added UpdateIcon here, assuming it exists in your icons file.
 import { DashboardIcon, LogsIcon, SettingsIcon, StatusIcon, LogoutIcon, UpdateIcon } from '../icons/Svg';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Sidebar({ setSidebarOpen }) {
   const { isConnected, publishMessage } = useMqtt();
+  const { user , logout } = useAuth()
 
   const handleUpdateClick = () => {
     publishMessage(JSON.stringify({ key: 'update' }));
@@ -69,13 +71,27 @@ export default function Sidebar({ setSidebarOpen }) {
         </nav>
       </div>
 
-      {/* Logout Button */}
-      <div className="mt-auto p-4">
-        <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-slate-600 transition-all hover:bg-slate-200">
-          <LogoutIcon />
-          Log out
-        </button>
+      {/* --- START: Merged User & Logout Section --- */}
+      <div className="mt-auto  p-4">
+        {user && (
+          <button
+            onClick={logout}
+            className="flex w-full items-center justify-between rounded-lg p-2 text-slate-700 transition-colors hover:bg-slate-200"
+          >
+            {/* Left side: Avatar and Name */}
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-200 text-sm font-bold text-blue-700">
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+              <span className="font-medium wrap-break-word">Welcome, {user.name}</span>
+            </div>
+
+            {/* Right side: Logout Icon */}
+            <LogoutIcon />
+          </button>
+        )}
       </div>
+      {/* --- END: Merged User & Logout Section --- */}
     </div>
   );
 }
