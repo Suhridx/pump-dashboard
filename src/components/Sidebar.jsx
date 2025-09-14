@@ -83,7 +83,7 @@ export default function Sidebar({ setSidebarOpen }) {
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-200 text-sm font-bold text-blue-700">
                 {user.name.charAt(0).toUpperCase()}
               </div>
-              <span className="font-medium wrap-break-word">Welcome, {user.name}</span>
+              <span className="font-medium">Welcome, {user.name}</span>
             </div>
 
             {/* Right side: Logout Icon */}

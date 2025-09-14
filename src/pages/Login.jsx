@@ -6,7 +6,7 @@ export default function LoginPage() {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { login , isAuthenticated } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
@@ -18,12 +18,12 @@ export default function LoginPage() {
     }
   };
 
-  useEffect(()=>{
-if(isAuthenticated)
-    navigate('/')
-  },[])
+  useEffect(() => {
+    if (isAuthenticated)
+      navigate('/')
+  }, [])
 
-  
+
 
   return (
     <div>

@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }) => {
     const foundUser = PREDEFINED_USERS[userId];
 
     if (foundUser && foundUser.password === password) {
-      const userData = { id: userId, name: foundUser.name , timeStamp : Date.now()};
+      const userData = { id: userId, role:foundUser.role, name: foundUser.name , timeStamp : Date.now()};
       const key = import.meta.env.REACT_APP_STORAGE_KEY || "fallback_key";
       localStorage.setItem('app_user', encryptForStorage(JSON.stringify(userData), key));
       setUser(userData);

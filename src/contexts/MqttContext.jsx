@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import mqtt from 'mqtt';
+import {getKeyFromUserNameAndRole} from '../utilities/Encryption'
+import { useAuth } from './AuthContext';
 
 // 1. Create the context
 const MqttContext = createContext(null);
@@ -30,8 +32,13 @@ export const MqttProvider = ({ children }) => {
     // Cooldown logic state
     const [lastLogRequestTime, setLastLogRequestTime] = useState(null);
     const [lastLevelLogRequestTime, setLastLevelLogRequestTime] = useState(null);
+    const {user , isAuthenticated} = useAuth()
 
     useEffect(() => {
+        if(!isAuthenticated)
+        {
+            return;
+        }
         // --- Connection Logic ---
         const brokerUrl = import.meta.env.VITE_MQTT_BROKER_URL;
         
@@ -46,10 +53,13 @@ export const MqttProvider = ({ children }) => {
         }
 
         const options = {
-            username: import.meta.env.VITE_MQTT_USERNAME,
-            password: import.meta.env.VITE_MQTT_PASSWORD,
+            username: user.id,
+            password: getKeyFromUserNameAndRole(user.id , user.role),
             clientId: `mqtt_react_client_${Math.random().toString(16).slice(2, 10)}`, // Random client ID
         };
+
+        console.log("connecting with options " + JSON.stringify(options));
+        
 
         const mqttClient = mqtt.connect(brokerUrl, options);
         setClient(mqttClient);
@@ -143,7 +153,7 @@ export const MqttProvider = ({ children }) => {
                 mqttClient.end();
             }
         };
-    }, []);
+    }, [isAuthenticated]);
 
     const publishMessage = (message) => {
        let  topic='user'
