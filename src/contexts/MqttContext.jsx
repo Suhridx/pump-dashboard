@@ -57,7 +57,7 @@ export const MqttProvider = ({ children }) => {
             clientId: `mqtt_react_client_${Math.random().toString(16).slice(2, 10)}`, // Random client ID
         };
 
-        console.log("connecting with options " + JSON.stringify(options));
+        // console.log("connecting with options " + JSON.stringify(options));
 
 
         const mqttClient = mqtt.connect(brokerUrl, options);
@@ -150,7 +150,7 @@ export const MqttProvider = ({ children }) => {
     }, [isAuthenticated]);
 
     useEffect(() => {
-        console.log("fetching chart data");
+        // console.log("fetching chart data");
         
         const now = new Date();
 
@@ -172,7 +172,7 @@ export const MqttProvider = ({ children }) => {
         fetch(url)
             .then(res => res.json())
             .then(data => {
-                console.log(data);
+                // console.log(data);
                 if (data.text) {    
                     setLevelData(data.text.trim().split("\n").map(line => JSON.parse(line)));
                 } else if (data.error) {
@@ -232,7 +232,7 @@ export const MqttProvider = ({ children }) => {
         fetch(url)
             .then(res => res.json())
             .then(data => {
-                console.log(data);
+                // console.log(data);
                 if (data.text) {
                     setLevelData(data.text.trim().split("\n").map(line => JSON.parse(line)));
                 } else if (data.error) {

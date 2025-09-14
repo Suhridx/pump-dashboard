@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
       const storedUser = localStorage.getItem('app_user');
       const user = JSON.parse(decryptFromStorage(storedUser, key))
       if (user) {
-        console.log(user);
+        // console.log(user);
 
         setUser(user);
       }
@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }) => {
    * @returns {boolean} - True for successful login, false for failure.
    */
   const login = (userId, password, validity) => {
- console.log("validity value" + validity);
+//  console.log("validity value" + validity);
  
 
     const foundUser = PREDEFINED_USERS[userId];
