@@ -8,7 +8,7 @@ const PREDEFINED_USERS = {
   'Itfoa': { password: 'Iratower@12345', name: 'Residents', role: 'USER' },
   'Suhrid': { password: 'Suhrid@pump1', name: 'Suhrid', role: 'OWNER' },
   'Pushpal': { password: 'Pushpal@12345', name: 'Pushpal', role: 'OWNER' },
-  'Ira_admin': { password: 'Iam@admin00!', name: 'Iratower Admin', role: 'ADMIN' },
+  'Itfoa_admin': { password: 'Itfoa@admin12345!', name: 'Iratower Admin', role: 'ADMIN' },
 };
 
 // --- 2. Create the Context ---
