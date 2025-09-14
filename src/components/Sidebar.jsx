@@ -30,7 +30,8 @@ export default function Sidebar({ setSidebarOpen }) {
       <div className="flex items-center px-6 pt-6 mb-4 justify-between">
         <NavLink to="/" onClick={handleNavClick} className="flex items-center gap-3 font-bold text-slate-900">
           <div className="flex flex-col">
-            <span className="text-xl">Smart Pump</span>
+            <span className="text-xl">Pump DashBoard</span>
+            
             <div className="flex items-center gap-2">
               <span className={`h-3 w-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
               <span className="text-sm font-medium text-slate-600">
