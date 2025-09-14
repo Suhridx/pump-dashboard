@@ -6,7 +6,6 @@ import FetchErrorCard from '../components/FetchErrorCard';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyqsy4rBBU90WjDb8BwWzBYa1RcpQdVLcyCzbAE6KN8BYQEzmDzRE9Ef479I1z2nAWeRg/exec";
 
 // --- Mock Data ---
 // This data simulates the input you would receive from an API.
@@ -281,65 +280,34 @@ const WaterLevelChart = ({ data }) => {
 // This component simulates fetching data and handles the loading state.
 export default function Chart() {
   // const { publishMessage, isConnected, levelData, levelStatus } = useMqtt();
-  const [isLoading, setIsLoading] = useState(-1);
-  const [levelData, setLevelData] = useState({});
+  const [isLoading, setIsLoading] = useState(1);
+  // const [levelData, setLevelData] = useState({});
+
+  const { levelData, fetchLevelChartData } = useMqtt()
 
   // console.log("data from server: \n", levelData);
 
 
-  // useEffect(() => {
-
-  //   if (levelStatus === 'end')
-  //     setIsLoading(false)
-
-  // }, [levelStatus])
-
-  const fetchFileContent = (folderName, fileName) => {
-    setIsLoading(1); // Start loading
-    setLevelData({}); // Clear previous logs immediately
-
-    const url = `${SCRIPT_URL}?key=${encodeURIComponent(folderName)}&filename=${encodeURIComponent(fileName)}`;
-
-    fetch(url)
-      .then(res => res.json())
-      .then(data => {
-        console.log(data);
-        if (data.text) {
-          setLevelData(data.text.trim().split("\n").map(line => JSON.parse(line)));
-          setIsLoading(0)
-        } else if (data.error) {
-          console.error("Server error:", data.error);
-          setLevelData({ text: `Error: ${data.error}`, name: "Error" }); // Show error in viewer
-          setIsLoading(-1)
-        }
-      })
-      .catch(err => {
-        console.error("Fetch error:", err);
-        setIsLoading(-1)
-      })
-      // .finally(() => {
-      //   setIsLoading(0); // Stop loading, regardless of outcome
-      // });
-  };
-
   useEffect(() => {
-    // Simulate an API call to fetch data
-    const now = new Date();
 
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
+    if (levelData && !levelData.name)
+      setIsLoading(0)
+    else if (levelData?.name === 'Error')
+      setIsLoading(-1)
 
-    const folderName = `${year}_${month}`
-    // console.log(folderName);
+  }, [levelData])
 
-    const filename = `chart_${year}_${month}_${day}.txt`;
+  const now = new Date();
 
-    console.log(folderName, filename);
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
 
-    fetchFileContent(folderName, filename);
+  const folderName = `${year}_${month}`
+  // console.log(folderName);
 
-  }, []); // The empty dependency array ensures this effect runs only once
+  const filename = `chart_${year}_${month}_${day}.txt`;
+  // The empty dependency array ensures this effect runs only once
 
 
   return (
@@ -347,7 +315,7 @@ export default function Chart() {
     <div>
       {isLoading === 1 && <ChartSkeleton />}
       {isLoading === 0 && <WaterLevelChart data={levelData} />}
-      {isLoading === -1 && <FetchErrorCard errorMessage={levelData.text} onRetry={fetchFileContent} />}
+      {isLoading === -1 && <FetchErrorCard errorMessage={levelData.text} onRetry={() => {fetchLevelChartData(folderName, filename) ; setIsLoading(1)}} />}
     </div>
 
   );

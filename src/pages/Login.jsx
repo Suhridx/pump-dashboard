@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -6,13 +6,14 @@ export default function LoginPage() {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const validityRef = useRef()
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
-    const success = login(userId, password);
+    const success = login(userId, password , validityRef.current.checked );
     if (!success) {
       setError('Invalid username or password. Please try again.');
     }
@@ -36,11 +37,11 @@ export default function LoginPage() {
           <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
             <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
               <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                Sign in to your account
+                Log in to your account
               </h1>
               <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
                 <div>
-                  <label for="userId" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">User ID</label>
+                  <label htmlFor="userId" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">User ID</label>
                   <input type="text" name="userId" id="userId" required="" value={userId} placeholder="Enter your ID" onChange={(e) => setUserId(e.target.value)}
                     className="bg-gray-50 border
                     border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block 
@@ -48,7 +49,7 @@ export default function LoginPage() {
                      dark:focus:ring-blue-500 dark:focus:border-blue-500" />
                 </div>
                 <div>
-                  <label for="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
+                  <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
                   <input type="password" name="password" id="password"
                     placeholder="••••••••" value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -57,10 +58,10 @@ export default function LoginPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-start">
                     <div className="flex items-center h-5">
-                      <input id="remember" aria-describedby="remember" type="checkbox" className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800" required="" />
+                      <input id="remember" ref={validityRef} aria-describedby="remember" type="checkbox" className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800" required="" defaultChecked />
                     </div>
                     <div className="ml-3 text-sm">
-                      <label for="remember" className="text-gray-500 dark:text-gray-300">Remember me</label>
+                      <label htmlFor="remember" className="text-gray-500 dark:text-gray-300">Remember me</label>
                     </div>
                   </div>
                   {/* <a href="#" className="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500">Forgot password?</a> */}

@@ -1,14 +1,14 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {encryptForStorage , decryptFromStorage} from '../utilities/Encryption'
+import { encryptForStorage, decryptFromStorage } from '../utilities/Encryption'
 
 // --- 1. Define Predefined Users ---
 // As requested, user data is stored in a simple object.
 const PREDEFINED_USERS = {
-  'Itfoa': { password: 'Iratower@12345', name: 'Residents' , role : 'USER' },
-  'Suhrid': { password: 'Suhrid@pump1', name: 'Suhrid' , role : 'OWNER' },
-  'Pushpal': {password: 'Pushpal@12345', name: 'Pushpal' , role : 'CoOWNER'}, 
-  'Ira_admin': { password: 'Iam@admin00!', name: 'Iratower Admin' , role : 'ADMIN' },
+  'Itfoa': { password: 'Iratower@12345', name: 'Residents', role: 'USER' },
+  'Suhrid': { password: 'Suhrid@pump1', name: 'Suhrid', role: 'OWNER' },
+  'Pushpal': { password: 'Pushpal@12345', name: 'Pushpal', role: 'CoOWNER' },
+  'Ira_admin': { password: 'Iam@admin00!', name: 'Iratower Admin', role: 'ADMIN' },
 };
 
 // --- 2. Create the Context ---
@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
       const user = JSON.parse(decryptFromStorage(storedUser, key))
       if (user) {
         console.log(user);
-        
+
         setUser(user);
       }
     } catch (error) {
@@ -50,13 +50,17 @@ export const AuthProvider = ({ children }) => {
    * @param {string} password - The user's password.
    * @returns {boolean} - True for successful login, false for failure.
    */
-  const login = (userId, password) => {
+  const login = (userId, password, validity) => {
+ console.log("validity value" + validity);
+ 
+
     const foundUser = PREDEFINED_USERS[userId];
 
     if (foundUser && foundUser.password === password) {
-      const userData = { id: userId, role:foundUser.role, name: foundUser.name , timeStamp : Date.now()};
+      const userData = { id: userId, role: foundUser.role, name: foundUser.name, timeStamp: Date.now() };
       const key = import.meta.env.REACT_APP_STORAGE_KEY || "fallback_key";
-      localStorage.setItem('app_user', encryptForStorage(JSON.stringify(userData), key));
+      if (validity)
+        localStorage.setItem('app_user', encryptForStorage(JSON.stringify(userData), key));
       setUser(userData);
       navigate('/'); // Redirect to the main page after login
       return true;

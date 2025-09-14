@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import mqtt from 'mqtt';
-import {getKeyFromUserNameAndRole} from '../utilities/Encryption'
+import { getKeyFromUserNameAndRole } from '../utilities/Encryption'
 import { useAuth } from './AuthContext';
 
 // 1. Create the context
@@ -19,7 +19,7 @@ export const MqttProvider = ({ children }) => {
     // Your application-specific state
     const [logData, setLogData] = useState('');
     const [logStatus, setLogStatus] = useState('empty');
-    const [levelData, setLevelData] = useState([]);
+    const [levelData, setLevelData] = useState();
     const [levelStatus, setLevelStatus] = useState('empty');
     const [wirelessState, setWirelessState] = useState(null);
     const [pumpState, setPumpState] = useState(null);
@@ -28,20 +28,19 @@ export const MqttProvider = ({ children }) => {
     const [scheduleState, setScheduleState] = useState(null);
     const [routineState, setRoutineState] = useState(null);
     const [lastUpdatedAt, setLastUpdatedAt] = useState(null);
-    
+
     // Cooldown logic state
     const [lastLogRequestTime, setLastLogRequestTime] = useState(null);
     const [lastLevelLogRequestTime, setLastLevelLogRequestTime] = useState(null);
-    const {user , isAuthenticated} = useAuth()
+    const { user, isAuthenticated } = useAuth()
 
     useEffect(() => {
-        if(!isAuthenticated)
-        {
+        if (!isAuthenticated) {
             return;
         }
         // --- Connection Logic ---
         const brokerUrl = import.meta.env.VITE_MQTT_BROKER_URL;
-        
+
         // Robust check for the broker URL
         if (!brokerUrl) {
             console.error("FATAL: VITE_MQTT_BROKER_URL is not defined in your .env file.");
@@ -54,12 +53,12 @@ export const MqttProvider = ({ children }) => {
 
         const options = {
             username: user.id,
-            password: getKeyFromUserNameAndRole(user.id , user.role),
+            password: getKeyFromUserNameAndRole(user.id, user.role),
             clientId: `mqtt_react_client_${Math.random().toString(16).slice(2, 10)}`, // Random client ID
         };
 
         console.log("connecting with options " + JSON.stringify(options));
-        
+
 
         const mqttClient = mqtt.connect(brokerUrl, options);
         setClient(mqttClient);
@@ -68,11 +67,11 @@ export const MqttProvider = ({ children }) => {
         mqttClient.on('connect', () => {
             console.log('MQTT Client Connected');
             setIsConnected(true);
-            mqttClient.publish('user', JSON.stringify({"key" : "request"}), (err) => {
-            if (err) {
-                console.error('Publish Error:', err);
-            }
-        });
+            mqttClient.publish('user', JSON.stringify({ "key": "request" }), (err) => {
+                if (err) {
+                    console.error('Publish Error:', err);
+                }
+            });
 
             // Define topics to subscribe to
             const topicsToSubscribe = [
@@ -80,7 +79,7 @@ export const MqttProvider = ({ children }) => {
                 // 'device/logs',     // For log data streams
                 // 'device/levels',   // For water level data streams
             ];
-            
+
             mqttClient.subscribe(topicsToSubscribe, (err) => {
                 if (!err) {
                     console.log('Successfully subscribed to topics:', topicsToSubscribe.join(', '));
@@ -88,7 +87,7 @@ export const MqttProvider = ({ children }) => {
                     console.error('Subscription error:', err);
                 }
             });
-            
+
         });
 
         mqttClient.on('message', (topic, payload) => {
@@ -117,12 +116,7 @@ export const MqttProvider = ({ children }) => {
                     } else if (data.level_status === 'end') {
                         setLevelStatus("end");
                     }
-                } else if ("level_data" in data) {
-                    console.log(data.level_data.trim());
-                    
-                    const parsed = JSON.parse(data.level_data.trim());
-                    setLevelData(prev => [...prev, parsed]);
-                } else {
+                }  else {
                     // Handle general state updates
                     if ("wireless" in data) setWirelessState(data.wireless);
                     if ("pump" in data) setPumpState(data.pump);
@@ -155,8 +149,50 @@ export const MqttProvider = ({ children }) => {
         };
     }, [isAuthenticated]);
 
+    useEffect(() => {
+        console.log("fetching chart data");
+        
+        const now = new Date();
+
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+
+        const folderName = `${year}_${month}`
+        // console.log(folderName);
+
+        const fileName = `chart_${year}_${month}_${day}.txt`;
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyqsy4rBBU90WjDb8BwWzBYa1RcpQdVLcyCzbAE6KN8BYQEzmDzRE9Ef479I1z2nAWeRg/exec";
+
+        setLevelData(); // Clear previous logs immediately
+
+
+        const url = `${SCRIPT_URL}?key=${encodeURIComponent(folderName)}&filename=${encodeURIComponent(fileName)}`;
+
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+                if (data.text) {    
+                    setLevelData(data.text.trim().split("\n").map(line => JSON.parse(line)));
+                } else if (data.error) {
+                    console.error("Server error:", data.error);
+                    setLevelData({ text: `Error: ${data.error}`, name: "Error" }); // Show error in viewer
+                }
+            })
+            .catch(err => {
+                console.error("Fetch error:", err);
+                setLevelData({ text: `Error: ${err}`, name: "Error" });
+            })
+        // .finally(() => {
+        //   setIsLoading(0); // Stop loading, regardless of outcome
+        // });
+
+
+    }, [])
+
     const publishMessage = (message) => {
-       let  topic='user'
+        let topic = 'user'
         if (!client || !isConnected) {
             console.error('Cannot publish. MQTT client is not connected.');
             return;
@@ -172,8 +208,8 @@ export const MqttProvider = ({ children }) => {
                 console.warn("sendlog request ignored (cooldown not met)");
                 return;
             }
-            if(parsed.key === "sendlog") setLastLogRequestTime(now);
-            
+            if (parsed.key === "sendlog") setLastLogRequestTime(now);
+
         } catch (e) { /* Not a JSON message with a key, proceed */ }
 
         console.log(`Publishing to topic "${topic}":`, message);
@@ -184,12 +220,42 @@ export const MqttProvider = ({ children }) => {
         });
     };
 
+    const fetchLevelChartData = (folderName, fileName) => {
+
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyqsy4rBBU90WjDb8BwWzBYa1RcpQdVLcyCzbAE6KN8BYQEzmDzRE9Ef479I1z2nAWeRg/exec";
+
+        setLevelData(); // Clear previous logs immediately
+
+
+        const url = `${SCRIPT_URL}?key=${encodeURIComponent(folderName)}&filename=${encodeURIComponent(fileName)}`;
+
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+                if (data.text) {
+                    setLevelData(data.text.trim().split("\n").map(line => JSON.parse(line)));
+                } else if (data.error) {
+                    console.error("Server error:", data.error);
+                    setLevelData({ text: `Error: ${data.error}`, name: "Error" }); // Show error in viewer
+                }
+            })
+            .catch(err => {
+                console.error("Fetch error:", err);
+                setLevelData({ text: `Error: ${err}`, name: "Error" });
+            })
+        // .finally(() => {
+        //   setIsLoading(0); // Stop loading, regardless of outcome
+        // });
+    };
+
     const clearLogs = () => setLogData('Logs Cleared by user.');
 
     // The value provided to consuming components
     const value = {
         isConnected,
         publishMessage,
+        fetchLevelChartData,
         // Your states and setters
         logData,
         logStatus,
@@ -203,6 +269,7 @@ export const MqttProvider = ({ children }) => {
         scheduleState,
         routineState,
         lastUpdatedAt,
+
     };
 
     return (

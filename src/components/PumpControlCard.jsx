@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useMqtt } from '../contexts/MqttContext';
+import { useAuth } from '../contexts/AuthContext';
+import Swal from 'sweetalert2';
 
 
 const PumpControlCardSkeleton = () => {
@@ -104,6 +106,7 @@ const ModeDisplay = ({ mode, isPumpOn }) => {
 const PumpControlCard = () => {
     // Using the original WebSocket context hook from the user's project
     const { pumpState, routineState, publishMessage } = useMqtt();
+    const { user } = useAuth()
 
     const isPumpOn = pumpState?.pump_state === true;
     // Get the time from the server, prioritizing routineState
@@ -111,7 +114,6 @@ const PumpControlCard = () => {
 
     // Local state for the countdown to ensure smooth UI updates
     const [localTimeRemaining, setLocalTimeRemaining] = useState(serverTime);
-
     // Effect to sync the local timer with the server time whenever new data arrives
     useEffect(() => {
         setLocalTimeRemaining(serverTime);
@@ -136,6 +138,13 @@ const PumpControlCard = () => {
 
 
     const handleToggle = () => {
+        if (user.role == "USER") {
+            Swal.fire({
+                text: "You Dont have Permission to Operate Pump. Contact Admin.",
+                icon: "warning",
+            });
+            return
+        }
         publishMessage(JSON.stringify({ key: "pump", name: "pump_state" }));
     };
 
@@ -177,6 +186,8 @@ const PumpControlCard = () => {
             <div className="flex flex-wrap flex-1 items-center justify-center gap-6 my-8 min-h-[8rem]">
                 {/* The main power button */}
                 <button
+                    data-modal-target="popup-modal"
+                    data-modal-toggle="popup-modal" type="button"
                     onClick={handleToggle}
                     className="relative w-32 h-32 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 ease-in-out transform active:scale-95 focus:outline-none"
                 >
