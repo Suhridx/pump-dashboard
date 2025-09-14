@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ModalLayout from '../Layout/ModalLayout';
 import LogViewer from './LogViewer';
 import { FolderIcon } from '../icons/Svg';
+import { useAuth } from '../contexts/AuthContext';
 
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyqsy4rBBU90WjDb8BwWzBYa1RcpQdVLcyCzbAE6KN8BYQEzmDzRE9Ef479I1z2nAWeRg/exec";
 
@@ -29,6 +30,7 @@ function CloudLogViewer() {
     const [loading, setLoading] = useState(true); // For initial folder fetch
     const [isFileLoading, setIsFileLoading] = useState(false); // 👈 2. New state for file fetching
     const [logText, setLogText] = useState({});
+    const { user } = useAuth()
 
     useEffect(() => {
         const url = `${SCRIPT_URL}?key=all`;
@@ -92,6 +94,13 @@ function CloudLogViewer() {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
     };
+
+    if (user.role !== 'OWNER')
+    return (
+      <div class="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
+        <span class="font-medium">Warning!</span> You are not Authorised to view LOGS. Contact System OWNER.
+      </div>
+    )
 
     return (
         <>

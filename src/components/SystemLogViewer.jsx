@@ -2,20 +2,22 @@ import React, { useState, useEffect } from 'react';
 import LogViewer from '../components/LogViewer';
 import { useMqtt } from '../contexts/MqttContext';
 import Spinner from '../utilities/Spinner'
+import { useAuth } from '../contexts/AuthContext';
 
 // 1. A simple spinner component using Tailwind CSS
 
 
 const SystemLogViewer = () => {
-  const { publishMessage, isConnected,logStatus, logData, clearLogs } = useMqtt();
+  const { publishMessage, isConnected, logStatus, logData, clearLogs } = useMqtt();
+  const { user } = useAuth()
   // 2. Local state to track if logs are being streamed
   const [isLoading, setIsLoading] = useState(false);
-  useEffect(()=>{
+  useEffect(() => {
     setTimeout(() => {
       handleGetLogsClick()
     }, 500);
-    
-  },[isConnected])
+
+  }, [isConnected])
 
   // 3. Effect to detect the end of the log stream
   useEffect(() => {
@@ -53,6 +55,13 @@ const SystemLogViewer = () => {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
+
+  if (user.role !== 'OWNER')
+    return (
+      <div class="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
+        <span class="font-medium">Warning!</span> You are not Authorised to view LOGS. Contact System OWNER.
+      </div>
+    )
 
   return (
     <>
