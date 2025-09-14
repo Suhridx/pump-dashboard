@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useMqtt } from '../contexts/MqttContext';
 import { LockOpenIcon, LockClosedIcon } from '../icons/Svg';
 import ScrollLayout from '../Layout/ScrollLayout'
+import { useAuth } from '../contexts/AuthContext';
 
 
 const ToggleSwitchSkeleton = () => (
@@ -164,6 +165,7 @@ const SelectInput = ({ label, description, value, onChange, options, isDisabled 
 
 export default function Settings() {
   const { settingsState, publishMessage } = useMqtt();
+  const {user} = useAuth()
   const [localSettings, setLocalSettings] = useState(null);
   const [isThresholdLocked, setIsThresholdLocked] = useState(true);
   const timerOptions = [15, 30, 45, 60, 90, 120];
@@ -176,6 +178,8 @@ export default function Settings() {
 
   const handleSettingChange = (name, value) => {
     if (!localSettings) return;
+    if(user.role === "USER")
+       return
 
     setLocalSettings(prev => ({ ...prev, [name]: value }));
 
@@ -200,6 +204,16 @@ export default function Settings() {
     <ScrollLayout maxHeight="100%" className="max-w-6xl p-10">
         <h1 className="text-4xl font-bold text-slate-800 mb-2">Settings</h1>
         <p className="text-lg text-slate-500 mb-8">Configure the device parameters.</p>
+
+        {user.role === 'USER' && <div class="flex items-center mt-2 p-2 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800" role="alert">
+                    <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+                    </svg>
+                    <span class="sr-only">Info</span>
+                    <div>
+                        <span class="font-medium">You Do not have Permission to Change Settings.</span>
+                    </div>
+                </div>}
         
         <h2 className="text-2xl font-bold text-slate-700 mt-8 mb-2">General Controls</h2>
         <div className="rounded-lg border border-slate-200 bg-white">

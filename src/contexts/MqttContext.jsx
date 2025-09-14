@@ -189,7 +189,7 @@ export const MqttProvider = ({ children }) => {
         // });
 
 
-    }, [])
+    }, [isAuthenticated])
 
     const publishMessage = (message) => {
         let topic = 'user'
