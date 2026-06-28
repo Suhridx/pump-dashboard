@@ -78,6 +78,13 @@ export default function Updates() {
                         deviceName="ESP-12"
                         description="Update the firmware for the main tank monitoring sensor."
                     />
+                    <UpdateButton
+                        handleUpdate={handleUpdate}
+                        id={"resAP"}
+                        label="Update Reservoir Access Point"
+                        deviceName="ESP-12"
+                        description="Update the firmware for the reservoir access point."
+                    />
                 </div>
             </div>
         </ScrollLayout>
